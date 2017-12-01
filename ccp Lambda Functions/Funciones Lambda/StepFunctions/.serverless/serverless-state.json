@@ -1,0 +1,570 @@
+{
+  "service": {
+    "service": "solicitud",
+    "serviceObject": {
+      "name": "solicitud"
+    },
+    "provider": {
+      "stage": "dev",
+      "region": "us-east-1",
+      "variableSyntax": "\\${([ ~:a-zA-Z0-9._'\",\\-\\/\\(\\)]+?)}",
+      "name": "aws",
+      "runtime": "nodejs6.10",
+      "memorySize": 128,
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-2:500638479192:table/Inventario"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-2:500638479192:table/Bodega"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "dynamodb:Query",
+            "dynamodb:Scan",
+            "dynamodb:GetItem",
+            "dynamodb:PutItem",
+            "dynamodb:UpdateItem",
+            "dynamodb:DeleteItem"
+          ],
+          "Resource": "arn:aws:dynamodb:us-east-2:500638479192:table/SolicitudaAbastecimiento"
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "sns:publish"
+          ],
+          "Resource": "arn:aws:sns:us-east-2:500638479192:servelessApp"
+        }
+      ],
+      "versionFunctions": true,
+      "remoteFunctionData": null,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket"
+          },
+          "StepBuscarBodegasLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/solicitud-dev-stepBuscarBodegas"
+            }
+          },
+          "StepDarDistanciasUbicacionPedidoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/solicitud-dev-stepDarDistanciasUbicacionPedido"
+            }
+          },
+          "StepCrearSolicitudesLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/solicitud-dev-stepCrearSolicitudes"
+            }
+          },
+          "EnviarCorreoLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/solicitud-dev-enviarCorreo"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "dev",
+                        "solicitud",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-stepBuscarBodegas:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-stepDarDistanciasUbicacionPedido:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-stepCrearSolicitudes:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-enviarCorreo:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-stepBuscarBodegas:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-stepDarDistanciasUbicacionPedido:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-stepCrearSolicitudes:*:*"
+                          },
+                          {
+                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/solicitud-dev-enviarCorreo:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:Query",
+                          "dynamodb:Scan",
+                          "dynamodb:GetItem",
+                          "dynamodb:PutItem",
+                          "dynamodb:UpdateItem",
+                          "dynamodb:DeleteItem"
+                        ],
+                        "Resource": "arn:aws:dynamodb:us-east-2:500638479192:table/Inventario"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:Query",
+                          "dynamodb:Scan",
+                          "dynamodb:GetItem",
+                          "dynamodb:PutItem",
+                          "dynamodb:UpdateItem",
+                          "dynamodb:DeleteItem"
+                        ],
+                        "Resource": "arn:aws:dynamodb:us-east-2:500638479192:table/Bodega"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "dynamodb:Query",
+                          "dynamodb:Scan",
+                          "dynamodb:GetItem",
+                          "dynamodb:PutItem",
+                          "dynamodb:UpdateItem",
+                          "dynamodb:DeleteItem"
+                        ],
+                        "Resource": "arn:aws:dynamodb:us-east-2:500638479192:table/SolicitudaAbastecimiento"
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "sns:publish"
+                        ],
+                        "Resource": "arn:aws:sns:us-east-2:500638479192:servelessApp"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "solicitud",
+                    "dev",
+                    "us-east-1",
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "StepBuscarBodegasLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/solicitud/dev/1506927337411-2017-10-02T06:55:37.411Z/solicitud.zip"
+              },
+              "FunctionName": "solicitud-dev-stepBuscarBodegas",
+              "Handler": "Steps/encontrarCandidatos.postularBodegas",
+              "MemorySize": 128,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "StepBuscarBodegasLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "StepBuscarBodegasLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "StepBuscarBodegasLambdaFunction"
+              },
+              "CodeSha256": "8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5/KvyPCD5l7LU="
+            }
+          },
+          "StepDarDistanciasUbicacionPedidoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/solicitud/dev/1506927337411-2017-10-02T06:55:37.411Z/solicitud.zip"
+              },
+              "FunctionName": "solicitud-dev-stepDarDistanciasUbicacionPedido",
+              "Handler": "Steps/calcularDistancias.darDistancias",
+              "MemorySize": 128,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "StepDarDistanciasUbicacionPedidoLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "StepDarDistanciasUbicacionPedidoLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "StepDarDistanciasUbicacionPedidoLambdaFunction"
+              },
+              "CodeSha256": "8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5/KvyPCD5l7LU="
+            }
+          },
+          "StepCrearSolicitudesLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/solicitud/dev/1506927337411-2017-10-02T06:55:37.411Z/solicitud.zip"
+              },
+              "FunctionName": "solicitud-dev-stepCrearSolicitudes",
+              "Handler": "Steps/crearSolicitudes.generar",
+              "MemorySize": 128,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "StepCrearSolicitudesLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "StepCrearSolicitudesLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "StepCrearSolicitudesLambdaFunction"
+              },
+              "CodeSha256": "8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5/KvyPCD5l7LU="
+            }
+          },
+          "EnviarCorreoLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/solicitud/dev/1506927337411-2017-10-02T06:55:37.411Z/solicitud.zip"
+              },
+              "FunctionName": "solicitud-dev-enviarCorreo",
+              "Handler": "Steps/enviarCorreo.enviar",
+              "MemorySize": 128,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "nodejs6.10",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "EnviarCorreoLogGroup",
+              "IamRoleLambdaExecution"
+            ]
+          },
+          "EnviarCorreoLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "EnviarCorreoLambdaFunction"
+              },
+              "CodeSha256": "8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5/KvyPCD5l7LU="
+            }
+          },
+          "IamRoleStateMachineExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "states.us-east-1.amazonaws.com"
+                    },
+                    "Action": "sts:AssumeRole"
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": "dev-us-east-1-solicitud-statemachine",
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "lambda:InvokeFunction"
+                        ],
+                        "Resource": "*"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "ProcesarSolicitudPedidoStepFunctionsStateMachine": {
+            "Type": "AWS::StepFunctions::StateMachine",
+            "Properties": {
+              "DefinitionString": "{\"StartAt\":\"buscarBodegasConInventario\",\"States\":{\"buscarBodegasConInventario\":{\"Type\":\"Task\",\"Resource\":\"stepBuscarBodegas\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"enviarCorreo\"}],\"Next\":\"calcularDistancias\"},\"calcularDistancias\":{\"Type\":\"Task\",\"Resource\":\"stepDarDistanciasUbicacionPedido\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"enviarCorreo\"}],\"Next\":\"generarSolicitudes\"},\"generarSolicitudes\":{\"Type\":\"Task\",\"Resource\":\"stepCrearSolicitudes\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"Next\":\"enviarCorreo\"}],\"Next\":\"enviarCorreo\"},\"enviarCorreo\":{\"Type\":\"Task\",\"Resource\":\"enviarCorreo\",\"End\":true}}}",
+              "RoleArn": {
+                "Fn::GetAtt": [
+                  "IamRoleStateMachineExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": "IamRoleStateMachineExecution"
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          },
+          "StepBuscarBodegasLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "StepBuscarBodegasLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU"
+            }
+          },
+          "StepDarDistanciasUbicacionPedidoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "StepDarDistanciasUbicacionPedidoLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU"
+            }
+          },
+          "StepCrearSolicitudesLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "StepCrearSolicitudesLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU"
+            }
+          },
+          "EnviarCorreoLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "EnviarCorreoLambdaVersion8pWCnFWWgKrQaDOvwjvFYjQSE44kNp5KvyPCD5l7LU"
+            }
+          },
+          "ProcesarSolicitudPedidoStepFunctionsStateMachineArn": {
+            "Description": "Current StateMachine Arn",
+            "Value": {
+              "Ref": "ProcesarSolicitudPedidoStepFunctionsStateMachine"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket"
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "plugins": [
+      "serverless-step-functions"
+    ],
+    "functions": {
+      "stepBuscarBodegas": {
+        "handler": "Steps/encontrarCandidatos.postularBodegas",
+        "events": [],
+        "name": "solicitud-dev-stepBuscarBodegas",
+        "package": {},
+        "vpc": {}
+      },
+      "stepDarDistanciasUbicacionPedido": {
+        "handler": "Steps/calcularDistancias.darDistancias",
+        "events": [],
+        "name": "solicitud-dev-stepDarDistanciasUbicacionPedido",
+        "package": {},
+        "vpc": {}
+      },
+      "stepCrearSolicitudes": {
+        "handler": "Steps/crearSolicitudes.generar",
+        "events": [],
+        "name": "solicitud-dev-stepCrearSolicitudes",
+        "package": {},
+        "vpc": {}
+      },
+      "enviarCorreo": {
+        "handler": "Steps/enviarCorreo.enviar",
+        "events": [],
+        "name": "solicitud-dev-enviarCorreo",
+        "package": {},
+        "vpc": {}
+      }
+    },
+    "stepFunctions": {
+      "stateMachines": {
+        "procesarSolicitudPedido": {
+          "definition": {
+            "StartAt": "buscarBodegasConInventario",
+            "States": {
+              "buscarBodegasConInventario": {
+                "Type": "Task",
+                "Resource": "stepBuscarBodegas",
+                "Catch": [
+                  {
+                    "ErrorEquals": [
+                      "States.ALL"
+                    ],
+                    "Next": "enviarCorreo"
+                  }
+                ],
+                "Next": "calcularDistancias"
+              },
+              "calcularDistancias": {
+                "Type": "Task",
+                "Resource": "stepDarDistanciasUbicacionPedido",
+                "Catch": [
+                  {
+                    "ErrorEquals": [
+                      "States.ALL"
+                    ],
+                    "Next": "enviarCorreo"
+                  }
+                ],
+                "Next": "generarSolicitudes"
+              },
+              "generarSolicitudes": {
+                "Type": "Task",
+                "Resource": "stepCrearSolicitudes",
+                "Catch": [
+                  {
+                    "ErrorEquals": [
+                      "States.ALL"
+                    ],
+                    "Next": "enviarCorreo"
+                  }
+                ],
+                "Next": "enviarCorreo"
+              },
+              "enviarCorreo": {
+                "Type": "Task",
+                "Resource": "enviarCorreo",
+                "End": true
+              }
+            }
+          }
+        }
+      },
+      "activities": []
+    },
+    "artifact": "C:\\Users\\gusal\\dev\\Tesis\\codigoFuenteTesis\\AWS\\Codigo\\StepFunctions\\.serverless\\solicitud.zip"
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/solicitud/dev/1506927337411-2017-10-02T06:55:37.411Z",
+    "artifact": "solicitud.zip"
+  }
+}
